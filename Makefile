@@ -1,5 +1,5 @@
-srcdir := ImageCache
-version := $(shell sed '/versionName/ { s/.*versionName="\([^"]*\)".*/\1/; s/ /_/g; p }; d' AndroidManifest.xml)
+srcdir := FileCache
+version := 1.0.0-SNAPSHOT
 out_package := ../$(srcdir)_$(version).tar.gz
 
 package: $(out_package)

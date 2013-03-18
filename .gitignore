@@ -2,6 +2,8 @@ bin/
 gen/
 .classpath
 .project
+.settings/
 test/.project
 local.properties
 build.xml
+target/

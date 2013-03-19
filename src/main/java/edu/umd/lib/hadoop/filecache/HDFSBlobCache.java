@@ -18,10 +18,21 @@ package edu.umd.lib.hadoop.filecache;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
+import org.akubraproject.MissingBlobException;
+import org.apache.commons.io.IOUtils;
+
+import de.fiz.akubra.hdfs.CachedHDFSBlob;
+import de.fiz.akubra.hdfs.CachedHDFSBlobStoreConnection;
 import de.fiz.akubra.hdfs.HDFSBlob;
+import de.fiz.akubra.hdfs.HDFSBlobStore;
 
 
 /**
@@ -39,24 +50,57 @@ import de.fiz.akubra.hdfs.HDFSBlob;
  * @author <a href="mailto:spomeroy@mit.edu">Steve Pomeroy</a>
  *
  */
-public class FileCache extends DiskCache<String, HDFSBlob> {
+public class HDFSBlobCache extends DiskCache<String, HDFSBlob> {
+  
+  private CachedHDFSBlobStoreConnection conn;
 
-  public FileCache(File cacheBase) {
+  public HDFSBlobCache(File cacheBase) {
     super(cacheBase);
+  }
+  
+  public boolean hasHDFSConnection() {
+    return conn==null?false:true;
+  }
+
+  public void setHDFSConnection(CachedHDFSBlobStoreConnection conn) {
+    this.conn = conn;
   }
 
   @Override
   protected void toDisk(String key, HDFSBlob in, OutputStream out) {
-    // TODO Auto-generated method stub
+    try {
+      IOUtils.copy(in.openInputStream(), out);
+    } catch (MissingBlobException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     
   }
 
   @Override
   protected HDFSBlob fromDisk(String key, InputStream in) {
-    // TODO Auto-generated method stub
+    URI uri;
+    try {
+      uri = new URI(key);
+      if(uri != null) {
+        HDFSBlob blob = new CachedHDFSBlob(uri, conn);
+        return blob;
+      }
+    } catch (URISyntaxException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    
     return null;
   }
   
-  
+  public InputStream getInputStream(String key) throws FileNotFoundException {
+    final File readFrom = getFile(key);
+    final InputStream is = new FileInputStream(readFrom);
+    return is;
+  }
+    
   
 }

@@ -56,8 +56,18 @@ import java.util.logging.Level;
  * estimates that a trim is needed and if it is, proceeding to running {@link #trim()} on a worker
  * thread. This feature can be controlled by {@link #setAutoTrimFrequency(int)}.
  * </p>
+ * 
+ * <p> 
+ * The code has been updated to make it work with linux filesystem.
+ * <br>
+ * -mohideen
+ * </p>
  *
  * @author <a href="mailto:spomeroy@mit.edu">Steve Pomeroy</a>
+ * 
+ * 
+ * 
+ * 
  *
  * @param <K>
  *            the key to store/retrieve the value

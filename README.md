@@ -1,4 +1,14 @@
-Image Cache
+File Cache
+===========
+The project has been adapted to support file-caching in the native linux filesystems. All android specific features has been removed. Currently, this works as simple disk cache for files.
+
+
+Usage
+-----
+See sample implementation - [HDFSBlobCache](https://github.com/mohideen/akubra-hdfs/blob/master/src/main/java/de/fiz/akubra/hdfs/HDFSBlobCache.java)
+
+
+Image Cache (Source Project)
 ===========
 
 An image download-and-cacher that also knows how to efficiently generate

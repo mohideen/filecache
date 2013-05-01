@@ -36,8 +36,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -96,7 +97,7 @@ public abstract class DiskCache<K, V> {
     
     public static boolean DEBUG = true;
 
-    // /////////////////////////////////////////////
+    /////////////////////////////////////////////////
 
     private long mMaxDiskUsage = AUTO_MAX_CACHE_SIZE;
 
@@ -114,8 +115,8 @@ public abstract class DiskCache<K, V> {
 
     private int mAutoTrimFrequency = DEFAULT_AUTO_TRIM_FREQUENCY;
 
-    private final ThreadPoolExecutor mExecutor = new ThreadPoolExecutor(1, 5, 60, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<Runnable>());
+    private final ThreadPoolExecutor mExecutor = new ThreadPoolExecutor(1, 5, 15, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.DiscardPolicy());
 
     private int mAutoTrimHitCount = 1;
 
@@ -148,6 +149,10 @@ public abstract class DiskCache<K, V> {
         mCacheBase = cacheBase;
         mCachePrefix = cachePrefix;
         mCacheSuffix = cacheSuffix;
+        
+        Log = LoggerFactory.getLogger(DiskCache.class); 
+        Log.info("Starting Cache!!!");
+        
 
         try {
             hash = MessageDigest.getInstance("SHA-1");
@@ -194,12 +199,11 @@ public abstract class DiskCache<K, V> {
      */
     private void updateDiskUsageEstimates() {
         final long diskUsage = getCacheDiskUsage();
-
         final long availableSpace = getFreeSpace();
 
         synchronized (this) {
-            mEstimatedDiskUsage = diskUsage;
-            mEstimatedFreeSpace = availableSpace;
+          mEstimatedDiskUsage = diskUsage;
+          mEstimatedFreeSpace = availableSpace;
         }
     }
 
@@ -460,7 +464,7 @@ public abstract class DiskCache<K, V> {
 
         for (final File cacheFile : mCacheBase.listFiles(mCacheFileFilter)) {
             if (!cacheFile.delete()) {
-                Log.log(Level.SEVERE, "error deleting " + cacheFile);
+                Log.info("error deleting " + cacheFile);
                 success = false;
             }
         }
@@ -553,7 +557,7 @@ public abstract class DiskCache<K, V> {
             if (clear(cacheFile)) {
                 trimmed += size;
                 if (DEBUG) {
-                  Log.log(Level.INFO, TAG + ": trimmed unqueued " + cacheFile.getName() + " from cache.");
+                  Log.info(TAG + ": trimmed unqueued " + cacheFile.getName() + " from cache.");
                 }
             }
 
@@ -575,15 +579,15 @@ public abstract class DiskCache<K, V> {
             if (clear(cacheFile)) {
                 trimmed += size;
                 if (DEBUG) {
-                  Log.log(Level.INFO, TAG + ": trimmed " + cacheFile.getName() + " from cache.");
+                  Log.debug(TAG + ": trimmed " + cacheFile.getName() + " from cache.");
                 }
             } else {
-              Log.log(Level.SEVERE, TAG + ": error deleting " + cacheFile);
+              Log.info(TAG + ": error deleting " + cacheFile);
             }
         }
 
         if (DEBUG) {
-          Log.log(Level.INFO, TAG + ":trimmed a total of " + trimmed + " bytes from cache.");
+          Log.debug(TAG + ":trimmed a total of " + trimmed + " bytes from cache.");
         }
         return trimmed;
     }

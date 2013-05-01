@@ -11,6 +11,11 @@
   		<artifactId>akubra-hdfs</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+  	<dependency>
+  		<groupId>org.slf4j</groupId>
+  		<artifactId>log4j-over-slf4j</artifactId>
+  		<version>1.6.6</version>
+  	</dependency>
   </dependencies>
   <repositories>
     <repository>
